@@ -7,7 +7,10 @@
     "watch": "tsc -w",
     "cdk": "cdk",
     "deploy:auth": "cdk deploy DriverCareerHubAuthStack --require-approval never",
-    "destroy:auth": "cdk destroy DriverCareerHubAuthStack"
+    "destroy:auth": "cdk destroy DriverCareerHubAuthStack",
+    "deploy:storage": "cdk deploy DriverCareerHubStorageStack --require-approval never",
+    "destroy:storage": "cdk destroy DriverCareerHubStorageStack",
+    "deploy:all": "cdk deploy --all --require-approval never"
   },
   "devDependencies": {
     "@types/node": "22.x",
