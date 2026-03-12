@@ -1,0 +1,21 @@
+{
+  "name": "driver-career-hub-infrastructure",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "deploy:auth": "cdk deploy DriverCareerHubAuthStack --require-approval never",
+    "destroy:auth": "cdk destroy DriverCareerHubAuthStack"
+  },
+  "devDependencies": {
+    "@types/node": "22.x",
+    "aws-cdk": "2.178.2",
+    "typescript": "5.7.x"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.178.2",
+    "constructs": "^10.0.0"
+  }
+}

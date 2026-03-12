@@ -92,8 +92,18 @@ driver-career-hub/
 │       └── types/                # TypeScript type definitions (empty)
 ├── backend/                      # FastAPI app (empty scaffold)
 │   └── README.md
-└── infrastructure/               # AWS CDK scripts (empty scaffold)
-    └── README.md
+└── infrastructure/               # AWS CDK scripts
+    ├── README.md
+    ├── scripts/
+    │   └── deploy-auth.sh        # One-command Cognito deploy helper
+    └── cdk/                      # CDK TypeScript app
+        ├── package.json          # CDK + constructs dependencies
+        ├── tsconfig.json         # TypeScript (ES2020, commonjs, strict)
+        ├── cdk.json              # CDK app config (ts-node entry point)
+        ├── bin/
+        │   └── app.ts            # CDK app entry — instantiates AuthStack
+        └── lib/
+            └── auth-stack.ts     # DriverCareerHubAuthStack — Cognito User Pool + Client
 ```
 
 ### Frontend: Key Files
@@ -151,6 +161,8 @@ driver-career-hub/
 - [x] PWA manifest.json
 - [x] Root redirect to /feed
 - [x] Environment variable template
+- [x] AWS CDK (TypeScript) project scaffolded in `infrastructure/cdk/`
+- [x] Cognito User Pool CDK stack (`DriverCareerHubAuthStack`) — pool + app client defined
 
 ### In Progress
 
@@ -160,7 +172,7 @@ driver-career-hub/
 
 ### Not Started
 
-- [ ] Cognito authentication integration
+- [ ] Cognito authentication integration (CDK stack ready — needs deployment + frontend wiring)
 - [ ] Supabase database setup and schema
 - [ ] FastAPI backend scaffold (routes, models, services)
 - [ ] S3 file upload integration
@@ -301,6 +313,9 @@ Quick lookup for common modifications:
 | System fonts instead of Google Fonts | Build environment lacks internet access to Google Fonts. Revisit when deploying with full network access. |
 | Tailwind CSS 4 with `@tailwindcss/postcss` | Latest Tailwind with CSS-first config. No `tailwind.config.js` needed — uses `@theme` directive in CSS. |
 | Serwist over next-pwa | Serwist is the actively maintained successor to next-pwa, purpose-built for Next.js App Router. |
+| CDK TypeScript over Terraform/CloudFormation | Type-safe infra with IDE autocomplete; constructs match our TS frontend stack. Auth-only stack first; S3/SNS stacks added separately. |
+| Cognito default email sender for MVP | Avoids SES sandbox approval delay. Switch to SES custom domain before launch for branded emails. |
+| SRP auth flow primary, password flow also enabled | SRP never sends plain-text passwords. Password flow retained for server-side backend calls and Postman testing during dev. |
 
 ### Melbourne Driver Context
 
@@ -325,7 +340,7 @@ Quick lookup for common modifications:
 
 | Integration | Config Location | API Key Env Var | Status |
 |-------------|-----------------|-----------------|--------|
-| Amazon Cognito | TBD | `NEXT_PUBLIC_COGNITO_*` | Not configured |
+| Amazon Cognito | `infrastructure/cdk/lib/auth-stack.ts` | `NEXT_PUBLIC_COGNITO_*` | CDK stack defined, not yet deployed |
 | Supabase | TBD | TBD | Not configured |
 | AWS S3 | TBD | `NEXT_PUBLIC_S3_BUCKET` | Not configured |
 | AWS SNS | TBD | TBD | Not configured |
@@ -361,6 +376,22 @@ Quick lookup for common modifications:
 2. Create `src/lib/supabase.ts` with client initialization
 3. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to env
 4. Update this CLAUDE.md with schema and env var details
+
+### "I need to deploy the Cognito auth stack"
+```bash
+# One-liner (from repo root):
+./driver-career-hub/infrastructure/scripts/deploy-auth.sh
+
+# With explicit region/profile:
+./driver-career-hub/infrastructure/scripts/deploy-auth.sh --region ap-southeast-2 --profile myprofile
+
+# Manual CDK commands:
+cd driver-career-hub/infrastructure/cdk
+npm install
+npx cdk bootstrap          # only needed once per AWS account+region
+npx cdk deploy DriverCareerHubAuthStack --require-approval never
+```
+After deploy, copy `UserPoolId`, `UserPoolClientId`, and `Region` outputs into `frontend/.env.local`.
 
 ### "I need to scaffold the FastAPI backend"
 1. In `backend/`, create: `requirements.txt`, `app/main.py`, `app/routes/`, `app/services/`, `app/schemas/`
@@ -436,3 +467,4 @@ npm run dev      # Manual check at http://localhost:3000
 | Date | Agent/Session | Change |
 |------|---------------|--------|
 | 2026-03-12 | Initial scaffold | Created CLAUDE.md with full project structure, patterns, and workflow rules |
+| 2026-03-12 | CDK auth setup | Added `infrastructure/cdk/` CDK TypeScript project with `DriverCareerHubAuthStack` (Cognito User Pool + App Client) and `infrastructure/scripts/deploy-auth.sh` |
