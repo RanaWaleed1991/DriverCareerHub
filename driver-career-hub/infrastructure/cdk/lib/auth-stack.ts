@@ -104,7 +104,7 @@ export class AuthStack extends cdk.Stack {
         authFlows: {
           userSrp: true, // ALLOW_USER_SRP_AUTH (recommended, password never sent in plain text)
           userPassword: true, // ALLOW_USER_PASSWORD_AUTH (needed for server-side flows / testing)
-          refreshToken: true, // ALLOW_REFRESH_TOKEN_AUTH
+          // refreshToken is always enabled by default in current aws-cdk-lib versions
         },
 
         // Token validity
