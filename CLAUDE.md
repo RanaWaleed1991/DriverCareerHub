@@ -18,7 +18,7 @@
 | Hosting        | AWS Amplify                         | Not configured |
 | Auth           | Amazon Cognito                      | Deployed ✓     |
 | Database       | Supabase PostgreSQL                 | Not configured |
-| Backend API    | FastAPI on Railway                   | Empty scaffold |
+| Backend API    | FastAPI on Railway                   | Scaffolded ✓   |
 | Storage        | AWS S3                              | Deployed ✓     |
 | Push Notifs    | AWS SNS                             | Not configured |
 
@@ -33,6 +33,16 @@ npm run lint       # ESLint check
 ```
 
 Root `/` redirects to `/feed` automatically.
+
+```bash
+# Backend
+cd driver-career-hub/backend
+pip install -r requirements.txt   # only needed first time
+cp .env.example .env              # fill in real values
+uvicorn app.main:app --reload     # starts on http://localhost:8000
+# Health check: GET http://localhost:8000/health
+# API docs: http://localhost:8000/docs
+```
 
 ### Environment Variables
 
@@ -90,8 +100,29 @@ driver-career-hub/
 │       ├── hooks/                # Custom React hooks (empty)
 │       ├── lib/                  # Utilities, API clients, helpers (empty)
 │       └── types/                # TypeScript type definitions (empty)
-├── backend/                      # FastAPI app (empty scaffold)
-│   └── README.md
+├── backend/                      # FastAPI app (scaffolded)
+│   ├── .env.example              # Backend env var template
+│   ├── Procfile                  # Railway deploy command
+│   ├── requirements.txt          # Python dependencies
+│   ├── README.md
+│   └── app/
+│       ├── __init__.py
+│       ├── main.py               # FastAPI app, CORS, router includes, /health
+│       ├── config.py             # Pydantic Settings (env vars)
+│       ├── database.py           # Supabase client singleton
+│       ├── auth.py               # Cognito JWT verification + get_current_user dependency
+│       ├── models/
+│       │   ├── user.py           # CurrentUser, UserProfile, UserProfileUpdate
+│       │   ├── feed.py           # Placeholder
+│       │   └── shift.py          # Placeholder
+│       ├── routers/
+│       │   ├── feed.py           # /api/feed routes
+│       │   ├── shifts.py         # /api/shifts routes
+│       │   ├── profiles.py       # /api/profiles routes
+│       │   └── notifications.py  # /api/notifications routes
+│       └── services/
+│           ├── s3_service.py     # S3 presigned URL generation
+│           └── sns_service.py    # Placeholder
 └── infrastructure/               # AWS CDK scripts
     ├── README.md
     ├── scripts/
@@ -128,7 +159,13 @@ driver-career-hub/
 
 | Method | Endpoint | Handler | Description | Status |
 |--------|----------|---------|-------------|--------|
-| — | — | — | No endpoints yet | Placeholder |
+| GET | `/health` | `main.py` | Health check — returns `{"status": "ok"}` | Active |
+| — | `/api/feed/*` | `routers/feed.py` | Feed routes (community posts) | Empty router |
+| — | `/api/shifts/*` | `routers/shifts.py` | Shift/earnings tracking routes | Empty router |
+| — | `/api/profiles/*` | `routers/profiles.py` | User profile routes | Empty router |
+| — | `/api/notifications/*` | `routers/notifications.py` | Push notification routes | Empty router |
+
+**Auth:** Cognito JWT verified via `get_current_user()` dependency in `app/auth.py`. JWKS cached 24h. Returns `CurrentUser(cognito_sub, email, name)` — add `Depends(get_current_user)` to protected routes.
 
 ### Database: Schema Overview
 
@@ -177,7 +214,7 @@ driver-career-hub/
 
 - [ ] Cognito authentication integration (CDK stack ready — needs deployment + frontend wiring)
 - [ ] Supabase database setup and schema
-- [ ] FastAPI backend scaffold (routes, models, services)
+- [x] FastAPI backend scaffold (routes, models, services, Cognito JWT auth, Supabase client, S3 service)
 - [ ] S3 file upload integration (CDK stack ready — needs deployment + FastAPI presigned URL endpoint)
 - [ ] SNS push notification setup
 - [ ] AWS Amplify deployment config
@@ -197,7 +234,7 @@ driver-career-hub/
 1. Wire up Serwist service worker in `next.config.ts`
 2. Set up Cognito auth flow (login/register pages)
 3. Define Supabase schema and create initial migrations
-4. Scaffold FastAPI backend with health check endpoint
+4. ~~Scaffold FastAPI backend with health check endpoint~~ ✓
 5. Implement Feed page with community posts
 
 ---
@@ -473,3 +510,4 @@ npm run dev      # Manual check at http://localhost:3000
 | 2026-03-12 | CDK auth setup | Added `infrastructure/cdk/` CDK TypeScript project with `DriverCareerHubAuthStack` (Cognito User Pool + App Client) and `infrastructure/scripts/deploy-auth.sh` |
 | 2026-03-12 | CDK S3 storage | Added `DriverCareerHubStorageStack` in `lib/storage-stack.ts` — S3 media bucket (CORS, IA lifecycle, block-public-access), backend CRUD policy, frontend presigned-upload policy, and `infrastructure/scripts/deploy-storage.sh` |
 | 2026-03-13 | Infra deployed | Deployed `DriverCareerHubAuthStack` (Cognito pool `ap-southeast-2_T0R1NbI5n`) and `DriverCareerHubStorageStack` (S3 bucket `drivercareerhubstoragestack-mediabucketbcbb02ba-cwmjcse9tqst`) to `ap-southeast-2` |
+| 2026-03-13 | Backend scaffold | FastAPI backend with Cognito JWT auth, Supabase client, S3 presigned uploads, 4 empty routers (feed, shifts, profiles, notifications), Pydantic models, Railway Procfile |
