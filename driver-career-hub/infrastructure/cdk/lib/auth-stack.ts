@@ -113,13 +113,7 @@ export class AuthStack extends cdk.Stack {
         refreshTokenValidity: cdk.Duration.days(30),
 
         // No OAuth/hosted UI needed for MVP — direct Cognito SDK integration
-        oAuth: {
-          flows: {
-            authorizationCodeGrant: false,
-            implicitCodeGrant: false,
-          },
-          scopes: [],
-        },
+        disableOAuth: true,
 
         // Prevent user existence errors leaking from auth responses
         preventUserExistenceErrors: true,
