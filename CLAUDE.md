@@ -16,10 +16,10 @@
 | Frontend       | Next.js 15 (App Router) + Tailwind CSS 4 + TypeScript | Scaffolded |
 | PWA            | Serwist + @serwist/next             | Installed    |
 | Hosting        | AWS Amplify                         | Not configured |
-| Auth           | Amazon Cognito                      | Not configured |
+| Auth           | Amazon Cognito                      | Deployed ✓     |
 | Database       | Supabase PostgreSQL                 | Not configured |
 | Backend API    | FastAPI on Railway                   | Empty scaffold |
-| Storage        | AWS S3                              | CDK stack defined, not yet deployed |
+| Storage        | AWS S3                              | Deployed ✓     |
 | Push Notifs    | AWS SNS                             | Not configured |
 
 ### Run Locally
@@ -48,7 +48,7 @@ cp .env.local.example .env.local
 | `NEXT_PUBLIC_COGNITO_USER_POOL_ID` | Cognito auth | Placeholder |
 | `NEXT_PUBLIC_COGNITO_CLIENT_ID` | Cognito auth | Placeholder |
 | `NEXT_PUBLIC_COGNITO_REGION` | Cognito auth | Placeholder |
-| `NEXT_PUBLIC_S3_BUCKET` | S3 media bucket name | Set after running deploy-storage.sh |
+| `NEXT_PUBLIC_S3_BUCKET` | S3 media bucket name | `drivercareerhubstoragestack-mediabucketbcbb02ba-cwmjcse9tqst` |
 
 <!-- AGENT: Add new env vars to this table AND to .env.local.example when introducing them -->
 
@@ -164,7 +164,8 @@ driver-career-hub/
 - [x] Environment variable template
 - [x] AWS CDK (TypeScript) project scaffolded in `infrastructure/cdk/`
 - [x] Cognito User Pool CDK stack (`DriverCareerHubAuthStack`) — pool + app client defined
-- [x] S3 Storage CDK stack (`DriverCareerHubStorageStack`) — media bucket with CORS, lifecycle rules, and IAM policies defined
+- [x] S3 Storage CDK stack (`DriverCareerHubStorageStack`) — deployed, bucket `drivercareerhubstoragestack-mediabucketbcbb02ba-cwmjcse9tqst`
+- [x] Cognito auth stack (`DriverCareerHubAuthStack`) — deployed, pool `ap-southeast-2_T0R1NbI5n`, client `7iisl2cv7e9im2l553hp0bfm84`
 
 ### In Progress
 
@@ -342,9 +343,9 @@ Quick lookup for common modifications:
 
 | Integration | Config Location | API Key Env Var | Status |
 |-------------|-----------------|-----------------|--------|
-| Amazon Cognito | `infrastructure/cdk/lib/auth-stack.ts` | `NEXT_PUBLIC_COGNITO_*` | CDK stack defined, not yet deployed |
+| Amazon Cognito | `infrastructure/cdk/lib/auth-stack.ts` | `NEXT_PUBLIC_COGNITO_*` | Deployed — pool `ap-southeast-2_T0R1NbI5n` |
 | Supabase | TBD | TBD | Not configured |
-| AWS S3 | `infrastructure/cdk/lib/storage-stack.ts` | `NEXT_PUBLIC_S3_BUCKET` | CDK stack defined, not yet deployed |
+| AWS S3 | `infrastructure/cdk/lib/storage-stack.ts` | `NEXT_PUBLIC_S3_BUCKET` | Deployed — bucket `drivercareerhubstoragestack-mediabucketbcbb02ba-cwmjcse9tqst` |
 | AWS SNS | TBD | TBD | Not configured |
 
 ---
@@ -471,3 +472,4 @@ npm run dev      # Manual check at http://localhost:3000
 | 2026-03-12 | Initial scaffold | Created CLAUDE.md with full project structure, patterns, and workflow rules |
 | 2026-03-12 | CDK auth setup | Added `infrastructure/cdk/` CDK TypeScript project with `DriverCareerHubAuthStack` (Cognito User Pool + App Client) and `infrastructure/scripts/deploy-auth.sh` |
 | 2026-03-12 | CDK S3 storage | Added `DriverCareerHubStorageStack` in `lib/storage-stack.ts` — S3 media bucket (CORS, IA lifecycle, block-public-access), backend CRUD policy, frontend presigned-upload policy, and `infrastructure/scripts/deploy-storage.sh` |
+| 2026-03-13 | Infra deployed | Deployed `DriverCareerHubAuthStack` (Cognito pool `ap-southeast-2_T0R1NbI5n`) and `DriverCareerHubStorageStack` (S3 bucket `drivercareerhubstoragestack-mediabucketbcbb02ba-cwmjcse9tqst`) to `ap-southeast-2` |
